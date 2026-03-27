@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "projects")
 public class Project {
 
     @Id
@@ -22,6 +23,10 @@ public class Project {
     private String name;
 
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {
             CascadeType.DETACH,

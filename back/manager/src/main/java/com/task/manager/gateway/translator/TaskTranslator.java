@@ -21,20 +21,26 @@ public class TaskTranslator {
                    .description(taskRequest.description())
                    .status(taskRequest.status())
                    .priority(taskRequest.priority())
+                   .dueDate(taskRequest.dueDate())
                    .assignee(assignee)
                    .project(project)
                    .build();
     }
 
-    public TaskResponse toResponse(Task taskRequest) {
+    public TaskResponse toResponse(Task task) {
+        if (task == null) return null;
         return new TaskResponse(
-                taskRequest.getId(),
-                taskRequest.getTitle(),
-                taskRequest.getDescription(),
-                taskRequest.getStatus(),
-                taskRequest.getPriority(),
-                userTranslator.toResponse(taskRequest.getAssignee()),
-                projectTranslator.toResponse(taskRequest.getProject())
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getDueDate(),
+                task.getCreatedAt(),
+                task.getUpdatedAt(),
+                userTranslator.toResponse(task.getAssignee()),
+                projectTranslator.toResponse(task.getProject())
         );
     }
+
 }

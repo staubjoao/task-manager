@@ -1,12 +1,10 @@
 package com.task.manager.controller;
 
 import com.task.manager.gateway.ProjectGateway;
-import com.task.manager.gateway.request.NewUserRequest;
 import com.task.manager.gateway.request.ProjectRequest;
-import com.task.manager.gateway.request.UpdateUserRequest;
 import com.task.manager.gateway.response.ProjectResponse;
-import com.task.manager.gateway.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,13 +27,14 @@ public class ProjectController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ProjectResponse createProject(@RequestBody ProjectRequest projectRequest) {
         return projectGateway.save(projectRequest);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ProjectResponse updateProject(@PathVariable Long id, @RequestBody ProjectRequest projectRequest) {
         return projectGateway.update(id, projectRequest);
     }
-
 }

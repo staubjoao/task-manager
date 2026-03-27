@@ -37,4 +37,9 @@ public class TaskController {
     public TaskResponse updateTask(@PathVariable Long id, @RequestBody TaskRequest taskRequest) {
         return taskGateway.update(id, taskRequest);
     }
+
+    @PatchMapping("/{id}/status")
+    public TaskResponse updateStatus(@PathVariable Long id, @RequestBody com.task.manager.domain.enuns.TaskStatus status) {
+        return taskGateway.updateStatus(id, status);
+    }
 }

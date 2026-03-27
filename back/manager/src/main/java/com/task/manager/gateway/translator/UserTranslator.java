@@ -14,15 +14,18 @@ public class UserTranslator {
                    .lastName(newUserRequest.lastName())
                    .email(newUserRequest.email())
                    .password(newUserRequest.password())
+                   .role(newUserRequest.role())
                    .build();
     }
 
     public UserResponse toResponse(User user) {
+        if (user == null) return null;
         return new UserResponse(
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getEmail()
+                user.getEmail(),
+                user.getRole()
         );
     }
 

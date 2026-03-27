@@ -1,5 +1,6 @@
 package com.task.manager.gateway;
 
+import com.task.manager.config.security.SecurityUtils;
 import com.task.manager.domain.Project;
 import com.task.manager.domain.Task;
 import com.task.manager.domain.User;
@@ -22,6 +23,7 @@ public class ProjectGateway {
     private final ProjectService projectService;
     private final ProjectTranslator projectTranslator;
     private final UserService userService;
+    private final SecurityUtils securityUtils;
 
     public ProjectResponse save(ProjectRequest projectRequest) {
         Project project = toDomain(projectRequest);
@@ -35,7 +37,7 @@ public class ProjectGateway {
 
     public List<ProjectResponse> findAll() {
         return projectService.getAllProjects().stream()
-                          .map(projectTranslator::toResponse).toList();
+                             .map(projectTranslator::toResponse).toList();
     }
 
     public ProjectResponse update(Long id, ProjectRequest projectRequest) {
@@ -44,7 +46,8 @@ public class ProjectGateway {
     }
 
     private Project toDomain(ProjectRequest projectRequest) {
+        User currentUser = securityUtils.getCurrentUser();
         List<User> members = userService.getUsersByIds(projectRequest.memberIds());
-        return projectTranslator.toDomain(projectRequest, members);
+        return projectTranslator.toDomain(projectRequest, currentUser, members);
     }
 }

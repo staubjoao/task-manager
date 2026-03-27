@@ -43,6 +43,10 @@ public class TaskGateway {
         return taskTranslator.toResponse(taskService.updateTask(id, newTask));
     }
 
+    public TaskResponse updateStatus(Long id, com.task.manager.domain.enuns.TaskStatus status) {
+        return taskTranslator.toResponse(taskService.updateStatus(id, status));
+    }
+
     private Task toDomain(TaskRequest taskRequest) {
         User user = userService.getUserById(taskRequest.assigneeId());
         Project project = projectService.getProjectById(taskRequest.projectId());

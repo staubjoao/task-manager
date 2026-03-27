@@ -1,6 +1,6 @@
 package com.task.manager.gateway.request;
 
-public record UpdateUserRequest (
+public record UpdateUserRequest(
         String firstName,
         String lastName
 ) {
