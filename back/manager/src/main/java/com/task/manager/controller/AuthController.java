@@ -1,8 +1,8 @@
 package com.task.manager.controller;
 
+import com.task.manager.gateway.AuthGateway;
 import com.task.manager.gateway.request.AuthRequest;
 import com.task.manager.gateway.response.AuthResponse;
-import com.task.manager.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthGateway authGateway;
 
     @PostMapping("/login")
     public AuthResponse authenticate(@RequestBody AuthRequest request) {
-        return authService.authenticate(request.email(), request.password());
+        return authGateway.authenticate(request.email(), request.password());
     }
 }
