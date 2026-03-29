@@ -1,0 +1,138 @@
+<div class="dashboard-wrapper">
+  <header class="main-header">
+    <div class="header-content">
+      <h1>Gerenciador de Tarefas</h1>
+      <p>Perfil de: <strong>{{ authService.userRole() }}</strong></p>
+    </div>
+    <button class="logout-btn" (click)="logout()">Sair</button>
+  </header>
+
+  <div class="grid">
+    @if (authService.isAdmin()) {
+    <section class="admin-section">
+      <div class="section-header">
+        <h2>Gerenciador de Projetos</h2>
+        <button class="add-btn" (click)="toggleForm()">
+          {{ showProjectForm() ? 'Cancelar' : '+ Novo Projeto' }}
+        </button>
+      </div>
+
+      @if (showProjectForm()) {
+      <div class="form-card">
+        <header class="form-card-header">
+          <h3>{{ editingProjectId() ? 'Editar Projeto' : 'Criar Novo Projeto' }}</h3>
+        </header>
+
+        <div class="form-group">
+          <label for="proj-name">Nome do Projeto</label>
+          <input id="proj-name" type="text" [(ngModel)]="newProject.name" placeholder="Ex: Redesign do App">
+        </div>
+
+        <div class="form-group">
+          <label for="proj-desc">Descrição</label>
+          <textarea id="proj-desc" [(ngModel)]="newProject.description"
+            placeholder="Breve resumo do projeto..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Adicionar Membros</label>
+          <div class="member-selector">
+            @for (user of userService.users(); track user.id) {
+            <label class="checkbox-label">
+              <input type="checkbox" [checked]="isMemberSelected(user.id)" (change)="toggleMember(user.id)">
+              <span class="member-info">
+                {{ user.firstName }}
+                <span class="member-role">({{ user.role }})</span>
+              </span>
+            </label>
+            }
+          </div>
+        </div>
+
+        <button class="save-btn" (click)="saveProject()">
+          {{ editingProjectId() ? 'Atualizar Projeto' : 'Criar Projeto' }}
+        </button>
+      </div>
+      }
+
+      <div class="list-wrapper">
+        <ul class="item-list">
+          @for (project of projectService.projects(); track project.id) {
+          <li class="project-item">
+            <div class="project-info">
+              <strong>{{ project.name }}</strong>
+              <p>{{ project.description }}</p>
+              <div class="project-meta">
+                <span>Dono: {{ project.owner.firstName }}</span>
+                <span class="separator">•</span>
+                <span>Membros: {{ project.members.length }}</span>
+              </div>
+            </div>
+            <button class="edit-btn" (click)="startEdit(project)">Editar</button>
+          </li>
+          } @empty {
+          <li class="empty-state">Nenhum projeto encontrado.</li>
+          }
+        </ul>
+      </div>
+
+      <div class="section-header mt-xl">
+        <h2>Sistema de Usuários</h2>
+      </div>
+      <ul class="item-list">
+        @for (user of userService.users(); track user.id) {
+        <li class="user-item">
+          <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+          <span class="badge" [class]="user.role.toLowerCase()">{{ user.role }}</span>
+        </li>
+        }
+      </ul>
+    </section>
+    }
+
+    <section class="tasks-section" [class.full-width]="!authService.isAdmin()">
+      <div class="section-header">
+        <h2>Minhas Tarefas</h2>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Status</th>
+              <th>Prioridade</th>
+              <th>Projeto</th>
+              <th class="text-right">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (task of taskService.tasks(); track task.id) {
+            <tr>
+              <td class="font-medium">{{ task.title }}</td>
+              <td><span class="badge" [class]="task.status.toLowerCase()">{{ task.status }}</span></td>
+              <td>
+                <span class="priority-tag">{{ task.priority }}</span>
+              </td>
+              <td class="text-muted">{{ task.project.name }}</td>
+              <td class="text-right">
+                @if (task.status === 'TODO') {
+                <button class="action-btn" (click)="updateStatus(task.id, 'IN_PROGRESS')">Iniciar</button>
+                } @else if (task.status === 'IN_PROGRESS') {
+                <button class="action-btn primary" (click)="updateStatus(task.id, 'DONE')">Finalizar</button>
+                } @else {
+                <span class="status-done">Concluída</span>
+                }
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="empty-table">Nenhuma tarefa atribuída.</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
