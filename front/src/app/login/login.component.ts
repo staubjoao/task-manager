@@ -25,6 +25,12 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set(null);
 
+    if (!this.validateEmail(this.email)) {
+      this.error.set('Formato de e-mail inválido');
+      this.loading.set(false);
+      return;
+    }
+
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
@@ -34,5 +40,10 @@ export class LoginComponent {
         this.loading.set(false);
       }
     });
+  }
+
+  private validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }

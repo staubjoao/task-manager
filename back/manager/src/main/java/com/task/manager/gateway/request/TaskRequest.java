@@ -3,6 +3,7 @@ package com.task.manager.gateway.request;
 import com.task.manager.domain.enuns.TaskPriority;
 import com.task.manager.domain.enuns.TaskStatus;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
@@ -11,15 +12,14 @@ public record TaskRequest(
         String title,
         @NotEmpty
         String description,
-        @NotEmpty
         TaskStatus status,
-        @NotEmpty
+        @NotNull
         TaskPriority priority,
-        @NotEmpty
+        @NotNull
         LocalDateTime dueDate,
-        @NotEmpty
+        @NotNull
         Long assigneeId,
-        @NotEmpty
+        @NotNull
         Long projectId
 ) {
 }

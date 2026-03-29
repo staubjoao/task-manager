@@ -40,6 +40,9 @@ public class Task {
 
     @PrePersist
     protected void onCreate() {
+        if (status == null) {
+            status = TaskStatus.TODO;
+        }
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }

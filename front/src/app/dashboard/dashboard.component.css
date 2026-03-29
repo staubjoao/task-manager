@@ -182,6 +182,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* Força larguras fixas */
 }
 
 th {
@@ -195,10 +196,21 @@ th {
   border-bottom: 1px solid var(--gray-200);
 }
 
+/* Larguras específicas das colunas */
+th:nth-child(1) { width: 30%; } /* Título */
+th:nth-child(2) { width: 12%; } /* Status */
+th:nth-child(3) { width: 12%; } /* Prioridade */
+th:nth-child(4) { width: 15%; } /* Projeto */
+th:nth-child(5) { width: 18%; } /* Prazo */
+th:nth-child(6) { width: 13%; } /* Ação */
+
 td {
   padding: 1rem;
   border-bottom: 1px solid var(--gray-100);
   font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .add-btn {
@@ -232,6 +244,7 @@ td {
   border-radius: var(--radius-sm);
   font-size: 0.75rem;
   border: none;
+  width: 100%;
 }
 
 .action-btn.primary {
@@ -256,12 +269,15 @@ td {
   color: var(--success);
   font-weight: 600;
   font-size: 0.75rem;
+  display: block;
+  text-align: center;
 }
 
 .empty-table {
   padding: 3rem;
   text-align: center;
   color: var(--gray-400);
+  white-space: normal;
 }
 
 @keyframes slideUp {
@@ -276,6 +292,69 @@ td {
   }
 }
 
+/* Task Table Refinements */
+.task-title-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow: hidden;
+}
+
+.task-title-cell span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-assignee {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-weight: 400;
+}
+
+.priority-tag {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+.priority-tag.low { background: #f0fdf4; color: #166534; }
+.priority-tag.medium { background: #fffbeb; color: #92400e; }
+.priority-tag.high { background: #fff1f2; color: #9f1239; }
+.priority-tag.critical { background: #450a0a; color: #fecaca; }
+
+.text-sm {
+  font-size: 0.8125rem;
+  color: var(--gray-600);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.add-btn.secondary {
+  background: white;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}
+
+.add-btn.secondary:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+
 @media (max-width: 1100px) {
   .grid {
     grid-template-columns: 1fr;
@@ -283,5 +362,13 @@ td {
 
   .dashboard-wrapper {
     padding: 1.5rem;
+  }
+
+  table {
+    table-layout: auto;
+  }
+
+  td, th {
+    white-space: normal;
   }
 }

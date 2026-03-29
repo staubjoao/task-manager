@@ -11,26 +11,33 @@
     @if (authService.isAdmin()) {
     <section class="admin-section">
       <div class="section-header">
-        <h2>Gerenciador de Projetos</h2>
-        <button class="add-btn" (click)="toggleForm()">
-          {{ showProjectForm() ? 'Cancelar' : '+ Novo Projeto' }}
-        </button>
+        <h2>Painel de Controle</h2>
+        <div class="header-actions">
+          <button class="add-btn secondary" (click)="toggleProjectForm()">
+            {{ showProjectForm() ? 'Cancelar' : '+ Novo Projeto' }}
+          </button>
+          <button class="add-btn" (click)="toggleTaskForm()">
+            {{ showTaskForm() ? 'Cancelar' : '+ Nova Tarefa' }}
+          </button>
+          </div>
       </div>
 
+      <!-- Formulário de Projeto -->
       @if (showProjectForm()) {
-      <div class="form-card">
+      <div class="form-card animate-in">
         <header class="form-card-header">
           <h3>{{ editingProjectId() ? 'Editar Projeto' : 'Criar Novo Projeto' }}</h3>
         </header>
 
         <div class="form-group">
-          <label for="proj-name">Nome do Projeto</label>
-          <input id="proj-name" type="text" [(ngModel)]="newProject.name" placeholder="Ex: Redesign do App">
+          <label for="proj-name">Nome do Projeto *</label>
+          <input id="proj-name" type="text" [ngModel]="newProject.name()" (ngModelChange)="newProject.name.set($event)"
+            placeholder="Ex: Redesign do App">
         </div>
 
         <div class="form-group">
           <label for="proj-desc">Descrição</label>
-          <textarea id="proj-desc" [(ngModel)]="newProject.description"
+          <textarea id="proj-desc" [ngModel]="newProject.description()" (ngModelChange)="newProject.description.set($event)"
             placeholder="Breve resumo do projeto..."></textarea>
         </div>
 
@@ -49,13 +56,77 @@
           </div>
         </div>
 
-        <button class="save-btn" (click)="saveProject()">
+        <button class="save-btn" (click)="saveProject()" [disabled]="!isProjectFormValid()">
           {{ editingProjectId() ? 'Atualizar Projeto' : 'Criar Projeto' }}
         </button>
       </div>
       }
 
+      <!-- Formulário de Tarefa -->
+      @if (showTaskForm()) {
+      <div class="form-card animate-in">
+        <header class="form-card-header">
+          <h3>Criar Nova Tarefa</h3>
+        </header>
+      
+        <div class="form-group">
+          <label for="task-title">Título *</label>
+          <input id="task-title" type="text" [ngModel]="newTask.title()" (ngModelChange)="newTask.title.set($event)"
+            placeholder="O que precisa ser feito?">
+        </div>
+      
+        <div class="form-group">
+          <label for="task-desc">Descrição</label>
+          <textarea id="task-desc" [ngModel]="newTask.description()" (ngModelChange)="newTask.description.set($event)"
+            placeholder="Detalhes da tarefa..."></textarea>
+        </div>
+      
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-priority">Prioridade</label>
+            <select id="task-priority" [ngModel]="newTask.priority()" (ngModelChange)="newTask.priority.set($event)">
+              @for (p of priorities; track p) {
+              <option [value]="p">{{ p }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="task-date">Prazo *</label>
+            <input id="task-date" type="datetime-local" [ngModel]="newTask.dueDate()"
+              (ngModelChange)="newTask.dueDate.set($event)">
+          </div>
+        </div>
+      
+        <div class="form-group">
+          <label for="task-project">Projeto *</label>
+          <select id="task-project" [ngModel]="newTask.projectId()" (ngModelChange)="newTask.projectId.set($event)">
+            <option [value]="null" disabled selected>Selecione um projeto</option>
+            @for (p of projectService.projects(); track p.id) {
+            <option [value]="p.id">{{ p.name }}</option>
+            }
+          </select>
+        </div>
+      
+        <div class="form-group">
+          <label for="task-assignee">Responsável *</label>
+          <select id="task-assignee" [ngModel]="newTask.assigneeId()" (ngModelChange)="newTask.assigneeId.set($event)">
+            <option [value]="null" disabled selected>Selecione um usuário</option>
+            @for (u of userService.users(); track u.id) {
+            <option [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
+            }
+          </select>
+        </div>
+      
+        <button class="save-btn" (click)="saveTask()" [disabled]="!isTaskFormValid()">
+          Criar Tarefa
+        </button>
+      </div>
+      }
+
       <div class="list-wrapper">
+        <div class="section-header small">
+          <h3>Projetos Ativos</h3>
+        </div>
         <ul class="item-list">
           @for (project of projectService.projects(); track project.id) {
           <li class="project-item">
@@ -68,7 +139,7 @@
                 <span>Membros: {{ project.members.length }}</span>
               </div>
             </div>
-            <button class="edit-btn" (click)="startEdit(project)">Editar</button>
+            <button class="edit-btn" (click)="startEditProject(project)">Editar</button>
           </li>
           } @empty {
           <li class="empty-state">Nenhum projeto encontrado.</li>
@@ -77,12 +148,15 @@
       </div>
 
       <div class="section-header mt-xl">
-        <h2>Sistema de Usuários</h2>
+        <h2>Usuários do Sistema</h2>
       </div>
       <ul class="item-list">
         @for (user of userService.users(); track user.id) {
         <li class="user-item">
-          <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+          <div class="user-info">
+            <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+            <span class="user-email">{{ user.email }}</span>
+            </div>
           <span class="badge" [class]="user.role.toLowerCase()">{{ user.role }}</span>
         </li>
         }
@@ -103,33 +177,45 @@
               <th>Status</th>
               <th>Prioridade</th>
               <th>Projeto</th>
+              <th>Prazo</th>
               <th class="text-right">Ação</th>
             </tr>
           </thead>
           <tbody>
             @for (task of taskService.tasks(); track task.id) {
             <tr>
-              <td class="font-medium">{{ task.title }}</td>
-              <td><span class="badge" [class]="task.status.toLowerCase()">{{ task.status }}</span></td>
-              <td>
-                <span class="priority-tag">{{ task.priority }}</span>
+              <td class="font-medium">
+                <div class="task-title-cell">
+                  {{ task.title }}
+                  <small class="task-assignee">Para: {{ task.assignee?.firstName }}</small>
+                </div>
               </td>
-              <td class="text-muted">{{ task.project.name }}</td>
+              <td><span class="badge" [class]="task.status?.toLowerCase() || 'todo'">{{ task.status || 'Sem status' }}</span></td>
+              <td>
+                <span class="priority-tag" [class]="task.priority?.toLowerCase()">{{ task.priority }}</span>
+              </td>
+              <td class="text-muted">{{ task.project?.name }}</td>
+              <td class="text-sm">
+                {{ task.dueDate | date: 'dd/MM/yyyy HH:mm' }}
+              </td>
               <td class="text-right">
                 @if (task.status === 'TODO') {
                 <button class="action-btn" (click)="updateStatus(task.id, 'IN_PROGRESS')">Iniciar</button>
                 } @else if (task.status === 'IN_PROGRESS') {
                 <button class="action-btn primary" (click)="updateStatus(task.id, 'DONE')">Finalizar</button>
-                } @else {
+                } @else if (task.status === 'DONE') {
                 <span class="status-done">Concluída</span>
+                } @else {
+                  <button class="action-btn" (click)="updateStatus(task.id, 'TODO')">Setar TODO</button>
                 }
               </td>
             </tr>
             } @empty {
             <tr>
-              <td colspan="5" class="empty-table">Nenhuma tarefa atribuída.</td>
+              <td colspan="6" class="empty-table">Nenhuma tarefa atribuída.</td>
             </tr>
             }
+
           </tbody>
         </table>
       </div>

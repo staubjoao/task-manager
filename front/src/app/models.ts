@@ -67,3 +67,12 @@ export interface NewUserRequest {
   password:  string;
   role: Role;
 }
+
+export interface TaskRequest {
+  title: string;
+  description: string;
+  priority: TaskPriority;
+  dueDate: string;
+  assigneeId: number;
+  projectId: number;
+}
